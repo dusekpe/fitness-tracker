@@ -5,7 +5,7 @@
       <mat-card-content fxLayoutAlign="center">
         <mat-form-field>
           <mat-select placeholder="Favorite excercise" ngModel name="excercise" required>
-            <mat-option *ngFor="let excercise of excercises" [value]="excercise.id">
+            <mat-option *ngFor="let excercise of excercises " [value]="excercise.id">
               {{ excercise.name }}
             </mat-option>
           </mat-select>
