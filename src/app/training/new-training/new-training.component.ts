@@ -1,32 +1,30 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { Excercise } from '../excercise.model';
 import { TrainingService } from '../training.service';
-import { Subscription } from 'rxjs';
+import { Observable } from 'rxjs';
 import { UIService } from 'src/app/shared/ui.service';
+import * as fromTraining from '../training.reducer';
+import * as fromRoot from '../../app.reducer';
+import { Store } from '@ngrx/store';
 
 @Component({
   selector: 'app-new-training',
   templateUrl: './new-training.component.html',
   styleUrls: ['./new-training.component.css']
 })
-export class NewTrainingComponent implements OnInit, OnDestroy {
-  excercises: Excercise[];
-  private excerciseSubscription: Subscription;
-  private loadingSubscription: Subscription;
-  isLoading = true;
+export class NewTrainingComponent implements OnInit {
+  excercises$: Observable<Excercise[]>;
+  isLoading$: Observable<boolean>;
 
   constructor(private trainingService: TrainingService,
-              private uiService: UIService) { }
+              private uiService: UIService,
+              private store: Store<fromTraining.State>
+              ) { }
 
   ngOnInit() {
-    this.loadingSubscription = this.uiService.loadingStateChanged.subscribe(
-      isLoading =>{
-        this.isLoading = isLoading;
-      });
-    this.excerciseSubscription = this.trainingService.excercisesChanged.subscribe(
-      excercises => this.excercises = excercises);
-
+    this.isLoading$ = this.store.select(fromRoot.getIsLoading);
+    this.excercises$ = this.store.select(fromTraining.getAvalilableExcercises);
     this.fetchExcercises();
   }
 
@@ -36,16 +34,5 @@ export class NewTrainingComponent implements OnInit, OnDestroy {
 
   onStartTrainig(form: NgForm) {
     this.trainingService.startExcercise(form.value.excercise);
-  }
-
-  ngOnDestroy(){
-    if(this.excerciseSubscription)
-    {
-      this.excerciseSubscription.unsubscribe();
-    }
-    if(this.loadingSubscription)
-    {
-      this.loadingSubscription.unsubscribe();
-    }
   }
 }
